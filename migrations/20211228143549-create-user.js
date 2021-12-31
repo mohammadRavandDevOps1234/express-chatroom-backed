@@ -23,7 +23,13 @@ module.exports = {
                         type: Sequelize.STRING,
                     },
                     GroupId: {
-                        type: Sequelize.STRING
+                        
+                        type: Sequelize.UUID,
+                        references: {
+                            model: 'Groups',
+                            key: 'id',
+                        }
+                        
                     },
                     createdAt: {
                         allowNull: false,
