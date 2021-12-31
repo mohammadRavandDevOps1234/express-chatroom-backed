@@ -1,0 +1,27 @@
+h2 register user
+
+<script>
+
+    function ajax(){
+            $.ajax({
+          url: "http://localhost:3000/users/register",
+          type: "GET",
+          data: {
+              name:"mohammad"
+          },
+          contentType:"json",
+          dataType:"json",
+        timeout: 10000,
+          beforeSend: function() {
+             console.log('sending ajax request')
+          },
+          success: function(t) {
+              console.log('ssuccess send')
+              console.log(t)
+          },
+        error: function(t) {
+        console.log('error send')
+        console.log(t)
+          }
+      });
+        }</script>
