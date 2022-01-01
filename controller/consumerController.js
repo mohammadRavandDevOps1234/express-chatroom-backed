@@ -1,4 +1,6 @@
+const { sequelize } = require("./../database/mysqlConnect");
 const Joi = require("joi");
+const { Sequelize } = require("sequelize");
 const {
   User,
   Consumer,
@@ -63,15 +65,17 @@ exports.consumer_relation_working = async function (req, res, next) {
   res.send(allOrders);
 };
 
-exports.consumer_signup_and_register_nearStores = function (req, res, next) {
+exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
   //get consumer group id
+  const t = await sequelize.transaction();
+  try {
+    let group = await Group.findOne({ where: { name: "consumer" } });
 
-  Group.findOne({ where: { name: "consumer" } }).then((group) => {
-    var hashPassword = bcrypt.hashSync(
+    let hashPassword = bcrypt.hashSync(
       req.body.user.user_password,
       bcrypt.genSaltSync(15)
     );
-    User.create(
+    let consumer = await User.create(
       {
         id: v4(),
         username: req.body.user.user_username,
@@ -90,106 +94,152 @@ exports.consumer_signup_and_register_nearStores = function (req, res, next) {
       },
       {
         include: [{ model: Consumer, as: "ConsumerInfos" }],
+        transaction: t,
       }
-    )
-      .then((consumer) => {
-        // res.send(consumer);
-        Group.findOne({ where: { name: "store" } })
-          .then((group) => {
-            var hashPassword = bcrypt.hashSync(
-              req.body.user.user_password,
-              bcrypt.genSaltSync(15)
-            );
-            User.create(
-              {
-                id: v4(),
-                username: req.body.user.user_username + "store",
-                email: req.body.user.user_email + "store",
-                password: hashPassword,
-                GroupId: group.id,
-                StoreInfos: [
-                  {
-                    id: v4(),
-                    store_name: "storname",
-                    store_lat: "35.35",
-                    store_lng: "53.53",
-                    province_id: "20",
-                    city_id: "295",
-                    region_id: "0",
-                  },
-                ],
-              },
-              {
-                include: [{ model: Store, as: "StoreInfos" }],
-              }
-            )
-              .then((store) => {
-                
-                Room.bulkCreate(
-                  [{
-                    id: v4(),
-                    room_name: "nearStore",
-                  }]
-                )
-                  .then((rooms) => {
-                    console.log('room created with status 200 ok')
-                    let consumerNearStore = [];
-                    
-                  if(!store.length){
-                    store.StoreInfos = [store.StoreInfos];
-                  }
-                  
-                for (const oneStore of store.StoreInfos) {
-                  console.log('start--nearStores');
-                  console.log(oneStore)
-                  console.log('end--nearStore');
-                  if(!rooms.length){
-                    rooms = [rooms];
-                  }
-                  for (const room of rooms) {
-                    consumerNearStore.push({
-                      id:v4(),
-                      StoreId:oneStore.id,
-                      ConsumerId:consumer.ConsumerInfos.id,
-                      RoomId:room.id
-                    });
-                  }
-                }
-                console.log(consumerNearStore)
-                ConsumerStore.create(...consumerNearStore)
-                  .then((consumerStore)=>{
-                    res.send(consumerStore)
-                  })
-                  .catch((error)=>{
-                    console.log(error)
-                    res.send(error)
-                  })
-                  })
-                  .catch((error) => {
-                    console.log(error);
-                    res.send("room not created");
-                  });             
+    );
 
-              })
-              .catch((error) => {
-                console.log(error);
-                res.send("store not inserted");
-              });
-          })
-          .catch((error) => {
-            console.log(error);
-            res.send("consumer not found");
-          });
+    // res.send(consumer);
+    group = await Group.findOne({ where: { name: "store" } });
+    hashPassword = bcrypt.hashSync(
+      req.body.user.user_password,
+      bcrypt.genSaltSync(15)
+    );
+
+    let nearStores = req.body.nearStores.map((nearStore) => {
+      let hashPassword = bcrypt.hashSync(
+        nearStore.user.user_password,
+        bcrypt.genSaltSync(15)
+      );
+      return {
+        id: v4(),
+        username: nearStore.user.user_username,
+        email: nearStore.user.user_email,
+        password: hashPassword,
+        GroupId: group.id,
+        StoreInfos: [
+          {
+            id: v4(),
+            store_name: nearStore.store.store_name,
+            store_lat: nearStore.store.store_lat,
+            store_lng: nearStore.store.store_lng,
+            province_id: nearStore.store.store_province,
+            city_id: nearStore.store.store_city,
+            region_id: nearStore.store.store_region,
+          },
+        ],
+      };
+    });
+
+    let store = await Promise.all(
+      nearStores.map((userStore) => {
+        return User.create(userStore, {
+          include: [{ model: Store, as: "StoreInfos" }],
+          transaction: t,
+        });
       })
-      .catch((error) => {
-        console.log(error);
-        res.send("group not found");
-      });
+    );
+    
+    let rooms = await Room.create(
+      {
+        id: v4(),
+        room_name: "nearStore",
+      },
+      {
+        transaction: t,
+      }
+    );
 
-    //register user
+    let consumerNearStore = [];
 
-    //register consumer
+    if (store.length >= 0) {
+    } else {
+      store = [store];
+    }
 
-    //register consumr near stores
+    for (const oneStore of store) {
+      if (!rooms.length) {
+        rooms = [rooms];
+      }
+      for (const room of rooms) {
+        consumerNearStore.push({
+          id: v4(),
+          StoreId: oneStore.StoreInfos.id,
+          ConsumerId: consumer.ConsumerInfos.id,
+          RoomId: room.id,
+        });
+      }
+    }
+    
+    // let consumerStore = await ConsumerStore.create(...consumerNearStore, {
+    //   transaction: t,
+    // });
+
+    let consumerStore = await Promise.all(
+      consumerNearStore.map((consumerNearStore) => {
+        return ConsumerStore.create(consumerNearStore, {
+          transaction: t,
+        });
+      })
+    );
+
+    await t.commit();
+    res.send(consumerStore)
+
+    
+  } catch (error) {
+    await t.rollback();
+  }
+};
+
+exports.test = async function (req, res, next) {
+  let GroupId = "06543731-34a6-4d93-b6a7-bac6d8bac8c2";
+
+  let nearStores = req.body.nearStores.map((nearStore) => {
+    let hashPassword = bcrypt.hashSync(
+      nearStore.user.user_password,
+      bcrypt.genSaltSync(15)
+    );
+    return {
+      id: v4(),
+      username: nearStore.user.user_username,
+      email: nearStore.user.user_email,
+      password: hashPassword,
+      GroupId: GroupId,
+      StoreInfos: [
+        {
+          id: v4(),
+          store_name: nearStore.store.store_name,
+          store_lat: nearStore.store.store_lat,
+          store_lng: nearStore.store.store_lng,
+          province_id: nearStore.store.store_province,
+          city_id: nearStore.store.store_city,
+          region_id: nearStore.store.store_region,
+        },
+      ],
+    };
   });
+
+  const t = await sequelize.transaction();
+  try {
+    Promise.all(
+      nearStores.map((userStore) => {
+        return User.create(userStore, {
+          include: [{ model: Store, as: "StoreInfos" }],
+          transaction: t,
+        });
+      })
+    )
+      .then(async (values) => {
+        await t.commit();
+        res.send(values);
+      })
+      .catch(async (error) => {
+        await t.rollback();
+        res.send("error insert all records");
+      });
+  } catch (error) {
+    // If the execution reaches this line, an error was thrown.
+    // We rollback the transaction.
+    await t.rollback();
+  }
 };

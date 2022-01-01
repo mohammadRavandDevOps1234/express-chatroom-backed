@@ -19,6 +19,16 @@ router.post(
   registerConsumerValidation,
   consumerController.consumer_signup_and_register_nearStores
 );
+
+router.post(
+  "/test",
+  mainRegisterConsumerValidation,
+  userValidation,
+  consumerValidation,
+  nearStoreValidation,
+  registerConsumerValidation,
+  consumerController.test
+);
 router.post("/", consumerController.consumer_create_get);
 router.get("/", consumerController.consumer_show_post);
 

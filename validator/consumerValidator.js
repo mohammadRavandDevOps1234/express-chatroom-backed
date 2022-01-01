@@ -70,8 +70,37 @@ exports.consumerValidation = (req, res, next) => {
   
 };
 
-function validateOneNearStore(nearStore) {
-    const consumerValidation = Joi.object({
+
+function mainOneStoreValidation(mainStore){
+    const oneNearStoreValidation = Joi.object({
+        user:Joi.object().required(),
+        store:Joi.object().required()
+    });
+    
+    return oneNearStoreValidation.validate(mainStore);
+}
+
+
+function oneNearStoreUserValidation(userStore){
+    let userStoreValidation =Joi.object({
+        user_username: Joi.string().alphanum().min(3).max(30).required(),
+
+        user_password: Joi.string()
+            .required()
+            .min(8)
+            .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
+
+        user_repeat_password: Joi.ref("user_password"),
+
+        user_email: Joi.string()
+            .required()
+            .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } }),
+    }).with("password", "repeat_password");
+    return userStoreValidation.validate(userStore);
+}
+
+function oneNearStoreStoreValidation(store){
+    const nearStoreStoreValidation = Joi.object({
         store_name: Joi.string().min(3).max(30).required(),
         store_province: Joi.number().required(),
         store_city: Joi.number().required(),
@@ -79,7 +108,35 @@ function validateOneNearStore(nearStore) {
         store_lat: Joi.string().min(4).max(45).required(),
         store_lng: Joi.string().min(4).max(45).required(),
     });
-    return consumerValidation.validate(nearStore);
+
+    return nearStoreStoreValidation.validate(store);
+}
+
+function validateOneNearStore(nearStore) {
+    
+     // validate main one store schema
+     let result= mainOneStoreValidation(nearStore)
+     // end validate main one store schema
+
+     if(result.error !=null){
+        return result;
+     }
+
+    // validate user nearStore schema
+     result= oneNearStoreUserValidation(nearStore.user);
+     if(result.error !=null){
+         return result;
+     }
+
+    
+    // validate store nearStore schema
+    result = oneNearStoreStoreValidation(nearStore.store);
+    if(result.error !=null){
+        return result;
+    }
+
+    return result;
+  
 }
 
 exports.nearStoreValidation = ( req, res, next) => {
@@ -88,6 +145,8 @@ exports.nearStoreValidation = ( req, res, next) => {
         const minConsumerValidation = Joi.array().items(Joi.object()).required();
         let result = minConsumerValidation.validate(req.body.nearStores);
         if (result.error == null) {
+           
+
             /**
              * start validate one nearStore
              */

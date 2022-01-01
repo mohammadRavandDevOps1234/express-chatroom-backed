@@ -9,7 +9,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const {sequelize} = require('./database/mysqlConnect');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var consumerRouter = require('./routes/consumer');
@@ -17,10 +17,6 @@ var roomRouter = require('./routes/room');
 var storeRouter = require('./routes/store');
 
 var consumerstoreRouter = require('./routes/consumerstore');
-const sequelize = new Sequelize('express-chat', 'root', '', {
-    host: 'localhost',
-    dialect: 'mysql'
-});
 
 
 
