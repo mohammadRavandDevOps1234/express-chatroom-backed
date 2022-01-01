@@ -1,0 +1,52 @@
+// url => type=POST  http://localhost:3000/consumers/register
+{
+    "accessToken":"",
+    "user":{
+        "user_username":"mohammad551",
+        "user_email":"mohammad551@gmail.com",
+        "user_password":"mohffeaad",
+        "user_repeat_password":"mohffeaad"
+    },
+    "consumer":{
+        "consumer_name":"mohammad",
+        "consumer_province":"20",
+        "consumer_city":"295",
+        "consumer_region":"0",
+        "consumer_lat":"35.35",
+        "consumer_lng":"53.53"
+    },
+    "nearStores":[
+        {
+            "user":{
+                "user_username":"mohammad561",
+                "user_email":"mohammad561@gmail.com",
+                "user_password":"mohffeaad",
+                "user_repeat_password":"mohffeaad"
+            },
+            "store":{
+                "store_name":"helena store",
+                "store_province":"20",
+                "store_city":"295",
+                "store_region":"0",
+                "store_lat":"35.35",
+                "store_lng":"53.53"
+            }
+        },
+        {
+            "user":{
+                "user_username":"mohammad571",
+                "user_email":"mohammad571@gmail.com",
+                "user_password":"mohffeaad",
+                "user_repeat_password":"mohffeaad"
+            },
+            "store":{
+                "store_name":"helena store",
+                "store_province":"20",
+                "store_city":"295",
+                "store_region":"0",
+                "store_lat":"35.35",
+                "store_lng":"53.53"
+            }
+        }
+    ]
+}
