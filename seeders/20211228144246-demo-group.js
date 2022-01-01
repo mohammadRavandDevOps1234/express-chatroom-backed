@@ -12,31 +12,32 @@ module.exports = {
          *   isBetaMember: false
          * }], {});
          */
-        let randomGroupName = function() {
-            var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            var result = ""
-            var chaactersLength = characters.length;
-
-            for (var i = 0; i < 5; i++) {
-                result += characters.charAt(Math.floor(Math.random() * chaactersLength));
-            }
-            return result;
-        }
+        
 
         let getDate = function() {
             return format(new Date(Date.now()), 'yyyy-MM-dd H:m:s')
 
         }
+        let groupNames = [
+            'consumer',
+            'admin',
+            'store',
+            'company'
+        ];
 
-        for (let index = 0; index < 10; index++) {
+
+        groupNames.forEach(async (groupName) => {
+            
             await queryInterface.bulkInsert('Groups', [{
                 id: v4(),
-                name: randomGroupName(),
+                name: groupName,
                 createdAt: getDate(),
                 updatedAt: getDate()
             }], {});
+        
+        });
 
-        }
+
     },
 
     down: async(queryInterface, Sequelize) => {

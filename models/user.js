@@ -23,6 +23,16 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: 'id',
                 onDelete: 'CASCADE'
             });
+            models.User.hasOne(models.Store, {
+                as: "StoreInfos",
+                foreignKey: {
+                    name: "UserId",
+
+                    allowNull: false
+                },
+                targetKey: 'id',
+                onDelete: 'CASCADE'
+            });
             models.User.hasOne(models.Company, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
             // models.User.hasOne(models.Store , { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 
