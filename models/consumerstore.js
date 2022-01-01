@@ -16,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     };
     ConsumerStore.init({
+        StoreId: DataTypes.UUID,
+        ConsumerId: DataTypes.UUID,
         RoomId: DataTypes.UUID
     }, {
         sequelize,
