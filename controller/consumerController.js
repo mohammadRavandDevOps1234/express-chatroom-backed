@@ -90,14 +90,14 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
       })
     );
 
-    let rooms = await Room.create(
-      {
-        id: v4(),
-        room_name: "nearStore",
-      },
-      {
-        transaction: t,
-      }
+    let rooms = await Room.findOrCreate({
+      where: { room_name: "nearStore" },
+      defaults: {
+          id: v4(),
+          room_name: "nearStore",
+        },
+      transaction: t,
+    }      
     );
 
     let consumerNearStore = [];

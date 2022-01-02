@@ -18,5 +18,6 @@ router.post(
   storeController.store_signup_and_register_nearConsumers
 );
 router.put("/register", storeController.store_show_get);
+router.get('/test',storeController.test)
 
 module.exports = router;

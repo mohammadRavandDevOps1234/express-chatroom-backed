@@ -56,18 +56,17 @@ exports.store_signup_and_register_nearConsumers = async (req, res, next) => {
         where: { username: req.body.nearConsumers,GroupId:consumerGroupId.id },
         include: [{ model: Consumer, as: "ConsumerInfos"}],
     });
+     
+    let room = await Room.findOne({where:{room_name:"nearStore"}});
+    // await t.commit()
     
-    let rooms = await nearCosumers[0].ConsumerInfos.getNearConsumerStore()
-    await t.commit()
     
-    res.send(rooms);return;
-
     let consumerStore = await Promise.all(
-        nearCosumers.map((nearConsumer) => {
+      nearCosumers.map((nearConsumer) => {
           return ConsumerStore.create({
             StoreId:store.StoreInfos.id,
-            ConsumerId :nearConsumer.id,
-
+            ConsumerId :nearConsumer.ConsumerInfos.id,
+            RoomId:room.id
           }, {
             transaction: t,
           });
@@ -75,13 +74,13 @@ exports.store_signup_and_register_nearConsumers = async (req, res, next) => {
     );
     
     await t.commit();
-    res.send({nearCosumerIds,send:req.body.nearConsumers});
+    res.send(consumerStore);
     return;
     //regsiter store for near sores
   } catch (error) {
     await t.rollback();
     console.log(error);
-    res.send("main error");
+    res.sendStatus(400);
   }
 };
 
@@ -94,3 +93,24 @@ exports.store_show_get = function (req, res, next) {
     res.sendStatus(400);
   }
 };
+
+
+exports.test = async function(req,res,next){
+ try {
+  let userId = "16e6b926-3898-497f-b937-fcf4db204622";
+  let user = await User.findOne({where:{id:userId},include:[{model:Consumer,as:"ConsumerInfos"}]})
+  let consumer = user.ConsumerInfos;
+
+  consumer = await consumer.getNearConsumerStore();
+  
+  consumer = await Promise.all(consumer.map((consumer)=>{
+    return ConsumerStore.findOne({StoreId:consumer.ConsumerStores.StoreId,ConsumerId:consumer.ConsumerStores.ConsumerId});
+  }))
+  
+
+  res.send(consumer)
+ } catch (error) {
+   console.log(error)
+   res.send('test error')
+ }
+}

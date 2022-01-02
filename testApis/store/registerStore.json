@@ -1,0 +1,23 @@
+// url => type=POST  http://localhost:3000/stores/register
+
+{
+    "accessToken":"",
+    "user":{
+        "user_username":"mohammad50",
+        "user_email":"mohammad50@gmail.com",
+        "user_password":"mohffeaad",
+        "user_repeat_password":"mohffeaad"
+    },
+    "store":{
+        "store_name":"mohammad",
+        "store_province":"20",
+        "store_city":"295",
+        "store_region":"0",
+        "store_lat":"35.35",
+        "store_lng":"53.53"
+    },
+    "nearConsumers":[
+        "mohammad5512",
+        "consumerMohammad14"
+    ]
+}

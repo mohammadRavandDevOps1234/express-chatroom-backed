@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
             models.ConsumerStore.belongsTo(models.Room, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 
         }
+
+        findRoomId(){
+            return this.findOne({where:{StoreId:this.StoreId,ConsumerId:this.ConsumerId}});
+        }
     };
     ConsumerStore.init({
         StoreId: DataTypes.UUID,

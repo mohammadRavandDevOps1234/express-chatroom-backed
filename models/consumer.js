@@ -20,7 +20,10 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE'
             });
             models.Consumer.belongsToMany(models.Store, { through: 'ConsumerStores', as: 'nearConsumerStore', foreignKey: { name: "ConsumerId", allowNull: false }, otherKey: "StoreId", onDelete: 'CASCADE' });
+            models.Consumer.belongsToMany(models.Store, { through: 'ConsumerStores', as: 'consumerRoom', foreignKey: { name: "ConsumerId", allowNull: false }, otherKey: "RoomId", onDelete: 'CASCADE' });
             
+
+
             // models.Consumer.belongsTo(models.Store, { through: 'ConsumerStore', foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
             // models.Consumer.hasMany(models.ConsumerStore, {
             //     as: "ConsumerStoreA",

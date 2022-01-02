@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            models.Room.hasMany(models.ConsumerStore, { as: 'ConsumerStoreRoomChannel', foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
+            models.Room.belongsToMany(models.Consumer, { through: 'ConsumerStores', as: 'consumerRoom', foreignKey: { name: "RoomId", allowNull: false }, otherKey: "ConsumerId", onDelete: 'CASCADE' });
+            
         }
     };
     Room.init({
