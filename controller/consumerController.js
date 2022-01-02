@@ -1,6 +1,6 @@
 const { sequelize } = require("./../database/mysqlConnect");
 const Joi = require("joi");
-const { Sequelize } = require("sequelize");
+const { Sequelize,Op } = require("sequelize");
 const {
   User,
   Consumer,
@@ -220,7 +220,9 @@ exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
     });
 
     let removeNearStores = await ConsumerStore.destroy({
-      where: { StoreId: userStores },
+      where: {
+        [Op.and]: [{ StoreId: userStores }, { ConsumerId:consumer.id }],
+      },
       transaction: t,
     });
 

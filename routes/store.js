@@ -4,8 +4,10 @@ let storeController = require("./../controller/storeController.js");
 let {
   mainRegisterConsumerValidation,
   userValidation,
+  updateUserValidation,
   storeValidation,
   nearConsumerValidations,
+  mainUpdateConsumerValidation
 } = require("./../validator/storeValidation");
 /* GET users listing. */
 
@@ -17,7 +19,12 @@ router.post(
   nearConsumerValidations,
   storeController.store_signup_and_register_nearConsumers
 );
-router.put("/register", storeController.store_show_get);
+router.put("/register",
+mainUpdateConsumerValidation,
+updateUserValidation,
+storeValidation,
+nearConsumerValidations,
+storeController.store_update_and_register_nearConsumers);
 router.get('/test',storeController.test)
 
 module.exports = router;
