@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false
                 },
                 targetKey: 'id',
-                onDelete: 'CASCADE'
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE'
             });
             models.User.hasOne(models.Store, {
                 as: "StoreInfos",
@@ -31,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
                     allowNull: false
                 },
                 targetKey: 'id',
-                onDelete: 'CASCADE'
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE'
             });
             models.User.hasOne(models.Company, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
             // models.User.hasOne(models.Store , { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });

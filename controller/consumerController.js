@@ -132,13 +132,16 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
 
     let store = await Promise.all(
       nearStores.map((userStore) => {
-        return User.create(userStore, {
+        return User.findOrCreate({
+          where: { username: userStore.username },
           include: [{ model: Store, as: "StoreInfos" }],
+          defaults: userStore,
           transaction: t,
         });
+        // return User.findOrCreate(userStore, {include: [{ model: Store, as: "StoreInfos" }],  transaction: t, });
       })
     );
-    
+
     let rooms = await Room.create(
       {
         id: v4(),
@@ -152,6 +155,9 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
     let consumerNearStore = [];
 
     if (store.length >= 0) {
+      store = store.map((oneStore) => {
+        return oneStore[0];
+      });
     } else {
       store = [store];
     }
@@ -169,7 +175,7 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
         });
       }
     }
-    
+
     // let consumerStore = await ConsumerStore.create(...consumerNearStore, {
     //   transaction: t,
     // });
@@ -183,63 +189,167 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
     );
 
     await t.commit();
-    res.send(consumerStore)
-
-    
+    res.send(consumerStore);
   } catch (error) {
     await t.rollback();
+    res.send("main error");
   }
 };
 
-exports.test = async function (req, res, next) {
-  let GroupId = "06543731-34a6-4d93-b6a7-bac6d8bac8c2";
-
-  let nearStores = req.body.nearStores.map((nearStore) => {
-    let hashPassword = bcrypt.hashSync(
-      nearStore.user.user_password,
-      bcrypt.genSaltSync(15)
-    );
-    return {
-      id: v4(),
-      username: nearStore.user.user_username,
-      email: nearStore.user.user_email,
-      password: hashPassword,
-      GroupId: GroupId,
-      StoreInfos: [
-        {
-          id: v4(),
-          store_name: nearStore.store.store_name,
-          store_lat: nearStore.store.store_lat,
-          store_lng: nearStore.store.store_lng,
-          province_id: nearStore.store.store_province,
-          city_id: nearStore.store.store_city,
-          region_id: nearStore.store.store_region,
-        },
-      ],
-    };
-  });
-
+exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
+  //get consumer group id
   const t = await sequelize.transaction();
   try {
-    Promise.all(
+    let group = await Group.findOne({ where: { name: "consumer" } });
+
+    let hashPassword =(password)=>{
+      return bcrypt.hashSync(
+        password,
+        bcrypt.genSaltSync(15)
+      );
+    }
+   
+    let updateUserConsumer = await User.update({
+      username:req.body.user.user_username,
+      email:req.body.user.user_email,
+      password:hashPassword(req.body.user.user_password)
+    },{where:{username:req.body.user.user_old_username}, transaction: t  });
+    
+    let user =await User.findOne({where:{username:req.body.user.user_old_username}})
+    let consumer = await Consumer.findOne({where:{UserId:user.id}});
+    let updateConsumerInfo = await Consumer.update({
+      consumer_name: req.body.consumer.consumer_name,
+      consumer_lat: req.body.consumer.consumer_lat,
+      consumer_lng: req.body.consumer.consumer_lng,
+      province_id: req.body.consumer.consumer_province,
+      city_id: req.body.consumer.consumer_city,
+      region_id: req.body.consumer.consumer_region,
+    },{where:{UserId:user.id}, transaction: t  });
+
+    // res.send(consumer);
+    group = await Group.findOne({ where: { name: "store" } });
+   
+
+    let nearStores = req.body.nearStores.map((nearStore) => {
+      return {
+        id: v4(),
+        username: nearStore.user.user_username,
+        email: nearStore.user.user_email,
+        password: hashPassword(nearStore.user.user_password),
+        GroupId: group.id,
+        StoreInfos: [
+          {
+            id: v4(),
+            store_name: nearStore.store.store_name,
+            store_lat: nearStore.store.store_lat,
+            store_lng: nearStore.store.store_lng,
+            province_id: nearStore.store.store_province,
+            city_id: nearStore.store.store_city,
+            region_id: nearStore.store.store_region,
+          },
+        ],
+      };
+    });
+
+    let store = await Promise.all(
       nearStores.map((userStore) => {
-        return User.create(userStore, {
+        return User.findOrCreate({
+          where: { username: userStore.username },
           include: [{ model: Store, as: "StoreInfos" }],
+          defaults: userStore,
+          transaction: t,
+        });
+        // return User.findOrCreate(userStore, {include: [{ model: Store, as: "StoreInfos" }],  transaction: t, });
+      })
+    );
+    
+    let userStores = await User.findAll({
+      where: { username: req.body.removeNearStores },
+      include: [{ model: Store, as: "StoreInfos" }],
+    });
+    userStores = userStores.map((userStore) => {
+      return userStore.StoreInfos.id;
+    });
+
+    let removeNearStores = await ConsumerStore.destroy({
+      where: { StoreId: userStores },
+      transaction: t,
+    });
+
+
+    let rooms = await Room.findOne({where:{room_name:"nearStore"}});
+
+    let consumerNearStore = [];
+
+    if (store.length >= 0) {
+      store = store.map((oneStore) => {
+        return oneStore[0];
+      });
+    } else {
+      store = [store];
+    }
+
+    for (const oneStore of store) {
+      if (!rooms.length) {
+        rooms = [rooms];
+      }
+      for (const room of rooms) {
+        consumerNearStore.push({
+          id: v4(),
+          StoreId: oneStore.StoreInfos.id,
+          ConsumerId: consumer.id,
+          RoomId: room.id,
+        });
+      }
+    }
+
+    // let consumerStore = await ConsumerStore.create(...consumerNearStore, {
+    //   transaction: t,
+    // });
+
+    let consumerStore = await Promise.all(
+      consumerNearStore.map((consumerNearStore) => {
+        return ConsumerStore.create(consumerNearStore, {
           transaction: t,
         });
       })
-    )
-      .then(async (values) => {
-        await t.commit();
-        res.send(values);
-      })
-      .catch(async (error) => {
-        await t.rollback();
-        res.send("error insert all records");
-      });
+    );
+
+    await t.commit();
+    res.send(consumerStore);
   } catch (error) {
-    // If the execution reaches this line, an error was thrown.
-    // We rollback the transaction.
+    console.log(error)
     await t.rollback();
+    res.send("main error");
   }
 };
+
+
+exports.test = async function (req, res, next) {
+  
+  const t = await sequelize.transaction();
+  try {
+    let consumerUserName = 'mohammad551';
+    let updatedUser =await User.update({
+      username:req.body.user.user_username,
+      email:req.body.user.user_email,
+      password:req.body.user.user_password
+    },{where:{username:consumerUserName},include:[{model:Consumer,as:"ConsumerInfos"}], transaction: t  });
+   
+
+    await t.commit()
+    res.send(s)
+    return;
+ 
+    
+    // await t.commit();
+    res.sendStatus(201);
+    
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+    res.status(400).send(error);
+  }
+};
+
+

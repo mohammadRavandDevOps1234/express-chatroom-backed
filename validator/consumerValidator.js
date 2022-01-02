@@ -24,10 +24,61 @@ exports.mainRegisterConsumerValidation = ( req, res, next) => {
     
 };
 
+
+exports.mainUpdateConsumerValidation = ( req, res, next) => {
+        
+    try {
+        
+        const mainValidation = Joi.object({
+            user: Joi.required(),
+            consumer: Joi.required(),
+            nearStores: Joi.required(),
+            removeNearStores: Joi.required(),
+            accessToken: Joi.required(),
+        });
+        let result = mainValidation.validate(req.body);
+        if (result.error == null) {
+            next();
+        } else {
+            res.send(result.error.details);
+        }
+    } catch (error) {
+        next(error)
+    }
+
+};
+
 exports.userValidation = ( req, res, next) => {
 
         const userValidation = Joi.object({
             user_username: Joi.string().alphanum().min(3).max(30).required(),
+
+            user_password: Joi.string()
+                .required()
+                .min(8)
+                .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
+
+            user_repeat_password: Joi.ref("user_password"),
+
+            user_email: Joi.string()
+                .required()
+                .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } }),
+        }).with("password", "repeat_password");
+        let result = userValidation.validate(req.body.user);
+        if (result.error == null) {
+            next()
+        } else {
+            res.send(result.error.details);
+        }
+        
+        
+    
+};
+exports.updateUserValidation = ( req, res, next) => {
+
+        const userValidation = Joi.object({
+            user_username: Joi.string().alphanum().min(3).max(30).required(),
+            user_old_username: Joi.string().alphanum().min(3).max(30).required(),
 
             user_password: Joi.string()
                 .required()
@@ -174,6 +225,18 @@ exports.nearStoreValidation = ( req, res, next) => {
         } else {
             res.send(result.error.details);
         }
+   
+};
+exports.removeNearStoreValidation = ( req, res, next) => {
+    
+    //    nearstore object
+    const minConsumerValidation = Joi.array().items(Joi.string());
+    let result = minConsumerValidation.validate(req.body.removeNearStores);
+    if (result.error == null) {
+        next()
+    } else {
+        res.send(result.error.details);
+    }
    
 };
 

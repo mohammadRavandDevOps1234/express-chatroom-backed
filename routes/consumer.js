@@ -4,9 +4,12 @@ let consumerController = require("../controller/consumerController.js");
 let {
   mainRegisterConsumerValidation,
   userValidation,
+  updateUserValidation,
   consumerValidation,
   nearStoreValidation,
   registerConsumerValidation,
+  removeNearStoreValidation,
+  mainUpdateConsumerValidation
 } = require("../validator/consumerValidator.js");
 /* GET users listing. */
 
@@ -20,14 +23,15 @@ router.post(
   consumerController.consumer_signup_and_register_nearStores
 );
 
-router.post(
-  "/test",
-  mainRegisterConsumerValidation,
-  userValidation,
+router.put(
+  "/register",
+  mainUpdateConsumerValidation,
+  updateUserValidation,
   consumerValidation,
   nearStoreValidation,
+  removeNearStoreValidation,
   registerConsumerValidation,
-  consumerController.test
+  consumerController.consumer_signup_and_update_nearStores
 );
 router.post("/", consumerController.consumer_create_get);
 router.get("/", consumerController.consumer_show_post);
