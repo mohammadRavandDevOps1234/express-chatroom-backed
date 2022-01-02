@@ -12,58 +12,6 @@ const {
 const { v4 } = require("uuid");
 var bcrypt = require("bcryptjs");
 const { roundToNearestMinutes } = require("date-fns");
-exports.consumer_create_get = function (req, res, next) {
-  let consumer_id = req.params.consumer_id;
-};
-
-exports.consumer_show_post = async function (req, res, next) {
-  // Get all orders
-  const allOrders = await Consumer.findAll({
-    // Make sure to include the products
-    include: [
-      {
-        model: Store,
-        as: "nearConsumerStore",
-        required: false,
-        // Pass in the Product attributes that you want to retrieve
-        attributes: ["id"],
-        through: {
-          // This block of code allows you to retrieve the properties of the join table
-          model: ConsumerStore,
-          as: "ConsumerStores",
-        },
-      },
-    ],
-  });
-
-  // If everything goes well respond with the orders
-  res.send(allOrders);
-};
-
-exports.consumer_relation_working = async function (req, res, next) {
-  // Get all orders
-  const allOrders = await Order.findAll({
-    // Make sure to include the products
-    include: [
-      {
-        model: Product,
-        as: "products",
-        required: false,
-        // Pass in the Product attributes that you want to retrieve
-        attributes: ["id", "title"],
-        through: {
-          // This block of code allows you to retrieve the properties of the join table
-          model: ProductOrder,
-          as: "productOrders",
-          attributes: ["quantity"],
-        },
-      },
-    ],
-  });
-
-  // If everything goes well respond with the orders
-  res.send(allOrders);
-};
 
 exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
   //get consumer group id
@@ -323,33 +271,4 @@ exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
     res.send("main error");
   }
 };
-
-
-exports.test = async function (req, res, next) {
-  
-  const t = await sequelize.transaction();
-  try {
-    let consumerUserName = 'mohammad551';
-    let updatedUser =await User.update({
-      username:req.body.user.user_username,
-      email:req.body.user.user_email,
-      password:req.body.user.user_password
-    },{where:{username:consumerUserName},include:[{model:Consumer,as:"ConsumerInfos"}], transaction: t  });
-   
-
-    await t.commit()
-    res.send(s)
-    return;
- 
-    
-    // await t.commit();
-    res.sendStatus(201);
-    
-  } catch (error) {
-    await t.rollback();
-    console.log(error);
-    res.status(400).send(error);
-  }
-};
-
 

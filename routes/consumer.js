@@ -33,7 +33,5 @@ router.put(
   registerConsumerValidation,
   consumerController.consumer_signup_and_update_nearStores
 );
-router.post("/", consumerController.consumer_create_get);
-router.get("/", consumerController.consumer_show_post);
 
 module.exports = router;
