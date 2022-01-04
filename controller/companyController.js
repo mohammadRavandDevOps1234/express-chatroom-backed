@@ -43,7 +43,7 @@ exports.register_company = async (req, res, next) => {
       agency_name: req.body.company.company_name,
     });
 
-    if (company.CompanyInfos == null || companyAgency==null) {
+    if (company.CompanyInfos == null || companyAgency == null) {
       throw new Error("some eror");
     }
 
@@ -95,7 +95,7 @@ exports.udpate_company = async (req, res, next) => {
       {
         agency_name: req.body.company.company_name,
       },
-      { where: { CompanyId: userCompanyId,UserId:user.id } }
+      { where: { CompanyId: userCompanyId, UserId: user.id } }
     );
 
     await t.commit();
@@ -107,10 +107,28 @@ exports.udpate_company = async (req, res, next) => {
   }
 };
 
-exports.test = async (req, res, next) => {
+
+exports.update_company_logo = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
-    res.send(200);
+    let userCompany =await User.findOne({
+      where: { username: req.body.company_user_name },
+      attributes: ["id"],
+      include: [{ model: Company, as: "CompanyInfos", attributes: ["id"] }]
+    });
+
+    let updateLogoCompany = await Company.update(
+      {
+        company_logo:req.body.company_logo
+      },
+      { where: { id: userCompany.CompanyInfos.id }, transaction: t }
+    );
+
+    await t.commit();
+    res.sendStatus(200);
   } catch (error) {
-    res.send(400);
+    console.log(error);
+    await t.rollback();
+    res.sendStatus(400);
   }
 };

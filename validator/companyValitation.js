@@ -121,3 +121,33 @@ exports.updateCompanyValidation = (req, res, next) => {
   }
 };
 
+exports.CompanyRegisterLogoValidation = (req, res, next) => {
+  const companyLogoValidation = Joi.object({
+    company_user_name: Joi.string().alphanum().min(3).max(30).required(),
+    company_logo:Joi.string().allow(null, ''),
+    accessToken: Joi.required(),
+  });
+
+  let result = companyLogoValidation.validate(req.body.company);
+  if (result.error == null) {
+    next();
+  } else {
+    res.send(result.error.details);
+  }
+};
+
+exports.CompanyUpdateLogoValidation = (req, res, next) => {
+  const companyLogoValidation = Joi.object({
+    company_user_name: Joi.string().alphanum().min(3).max(30).required(),
+    company_logo:Joi.string().allow(null, ''),
+    accessToken: Joi.required(),
+  });
+
+  let result = companyLogoValidation.validate(req.body.company);
+  if (result.error == null) {
+    next();
+  } else {
+    res.send(result.error.details);
+  }
+};
+

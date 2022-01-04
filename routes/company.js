@@ -8,6 +8,8 @@ let {
   mainUpdateCompanyValidation,
   updateUserValidation,
   updateCompanyValidation,
+  CompanyRegisterLogoValidation,
+CompanyUpdateLogoValidation
 } = require("../validator/companyValitation.js");
 /* GET users listing. */
 
@@ -17,6 +19,14 @@ router.post(
   userValidation,
   registerCompanyValidation,
   companyController.register_company
+);
+
+
+
+router.put(
+  "/logo",
+  CompanyUpdateLogoValidation,
+  companyController.update_company_logo
 );
 
 router.put(
