@@ -18,6 +18,7 @@ var storeRouter = require('./routes/store');
 var companyRouter = require('./routes/company');
 var consumerstoreRouter = require('./routes/consumerstore');
 var agencyActivityAreasRouter = require('./routes/agencyActivityAreas');
+var agencyRouter = require('./routes/agency.js');
 
 
 
@@ -59,6 +60,7 @@ app.use('/consumerstores', consumerstoreRouter);
 app.use('/stores', storeRouter);
 app.use('/companies', companyRouter);
 app.use('/agencyActivityAreas', agencyActivityAreasRouter);
+app.use('/agencies', agencyRouter);
 app.use('/', indexRouter);
 app.use('404', (req, res, next) => {
     res.sendStatus(404);

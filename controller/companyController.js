@@ -32,8 +32,7 @@ exports.register_company = async (req, res, next) => {
           },
         ],
       },
-      { include: [{ model: Company, as: "CompanyInfos" }] },
-      { transaction: t }
+      { include: [{ model: Company, as: "CompanyInfos" }] ,transaction: t }
     );
 
     let companyAgency = Agency.create({
