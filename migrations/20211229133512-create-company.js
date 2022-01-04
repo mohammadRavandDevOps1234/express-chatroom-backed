@@ -23,6 +23,11 @@ module.exports = {
                 unique: true,
                 allowNull: false
             },
+            company_brand: {
+                type: Sequelize.STRING(65),
+                unique: true,
+                allowNull: false
+            },
             company_logo: {
                 type: Sequelize.STRING,
                 allowNull: true,

@@ -15,7 +15,7 @@ var usersRouter = require('./routes/users');
 var consumerRouter = require('./routes/consumer');
 var roomRouter = require('./routes/room');
 var storeRouter = require('./routes/store');
-
+var companyRouter = require('./routes/company');
 var consumerstoreRouter = require('./routes/consumerstore');
 
 
@@ -57,6 +57,7 @@ app.use('/consumers', consumerRouter);
 app.use('/rooms', roomRouter);
 app.use('/consumerstores', consumerstoreRouter);
 app.use('/stores', storeRouter);
+app.use('/companies', companyRouter);
 app.use('/', indexRouter);
 app.use('404', (req, res, next) => {
     res.sendStatus(404);

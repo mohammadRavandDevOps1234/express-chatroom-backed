@@ -17,13 +17,24 @@ module.exports = (sequelize, DataTypes) => {
                 as: "ConsumerInfos",
                 foreignKey: {
                     name: "UserId",
-
                     allowNull: false
                 },
                 targetKey: 'id',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE'
             });
+
+            models.User.hasOne(models.Company, {
+                as: "CompanyInfos",
+                foreignKey: {
+                    name: "UserId",
+                    allowNull: false
+                },
+                targetKey: 'id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE'
+            });
+
             models.User.hasOne(models.Store, {
                 as: "StoreInfos",
                 foreignKey: {
@@ -35,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE'
             });
-            models.User.hasOne(models.Company, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
+            
             // models.User.hasOne(models.Store , { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 
         }

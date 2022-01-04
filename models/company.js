@@ -11,12 +11,36 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            models.Company.belongsTo(models.User, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 
+            models.Company.hasMany(models.Agency, {
+                as: "CompanyAgency",
+                foreignKey: {
+                    name: "CompanyId",
+                    allowNull: false
+                },
+                targetKey: 'id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE'
+            });
+
+            models.Company.belongsTo(models.User, {
+                foreignKey: {
+                    as: "UserId",
+                    allowNull: false,
+                    targetKey: 'id',
+                },
+                onDelete: 'CASCADE'
+            });
         }
     };
     Company.init({
-        name: DataTypes.STRING
+        UserId: DataTypes.UUID,
+        company_name: DataTypes.STRING,
+        company_brand:DataTypes.STRING,
+        company_logo: DataTypes.STRING,
+        province: DataTypes.INTEGER,
+        city: DataTypes.INTEGER,
+        region: DataTypes.INTEGER,
     }, {
         sequelize,
         modelName: 'Company',

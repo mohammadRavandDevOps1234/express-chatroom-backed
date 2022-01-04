@@ -29,7 +29,7 @@ module.exports = {
                 user = {
                     id: v4(),
                     username: randomGroupName(),
-                    email: "computercodemohammad@gmail.com",
+                    email: randomGroupName()+"@gmail.com",
                     password: "somepassword",
                     GroupId: 1,
                     createdAt: getDate(),

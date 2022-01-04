@@ -13,6 +13,7 @@ const { v4 } = require("uuid");
 var bcrypt = require("bcryptjs");
 const { roundToNearestMinutes } = require("date-fns");
 
+let { hashPassword } = require("./../mixin/helpers.js");
 exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
   //get consumer group id
   const t = await sequelize.transaction();
@@ -28,7 +29,7 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
         id: v4(),
         username: req.body.user.user_username,
         email: req.body.user.user_email,
-        password: hashPassword,
+        password: hashPassword(req.body.user.user_password),
         GroupId: group.id,
         ConsumerInfos: {
           id: v4(),
@@ -62,7 +63,7 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
         id: v4(),
         username: nearStore.user.user_username,
         email: nearStore.user.user_email,
-        password: hashPassword,
+        password: hashPassword(nearStore.user.user_password),
         GroupId: group.id,
         StoreInfos: [
           {

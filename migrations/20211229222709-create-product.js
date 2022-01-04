@@ -1,12 +1,14 @@
 'use strict';
+let { v4 } = require('uuid');
+
 module.exports = {
     up: async(queryInterface, Sequelize) => {
         await queryInterface.createTable('Products', {
             id: {
-                allowNull: false,
-                autoIncrement: true,
+                type: Sequelize.UUID,
+                unique: true,
                 primaryKey: true,
-                type: Sequelize.INTEGER
+                defaultValue: v4(),
             },
             title: {
                 type: Sequelize.STRING

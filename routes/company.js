@@ -1,10 +1,31 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-let userController = require('./../controller/userController');
+let companyController = require("./../controller/companyController");
+let {
+  mainRegisterCompanyValidation,
+  userValidation,
+  registerCompanyValidation,
+  mainUpdateCompanyValidation,
+  updateUserValidation,
+  updateCompanyValidation,
+} = require("../validator/companyValitation.js");
 /* GET users listing. */
 
-router.post('/', userController.user_create_get);
-router.get('/', userController.user_show_post);
+router.post(
+  "/register",
+  mainRegisterCompanyValidation,
+  userValidation,
+  registerCompanyValidation,
+  companyController.register_company
+);
 
+router.put(
+  "/register",
+  mainUpdateCompanyValidation,
+  updateUserValidation,
+  updateCompanyValidation,
+  companyController.udpate_company
+);
 
+router.post('/test',companyController.test)
 module.exports = router;

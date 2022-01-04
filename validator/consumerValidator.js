@@ -74,6 +74,7 @@ exports.userValidation = ( req, res, next) => {
         
     
 };
+
 exports.updateUserValidation = ( req, res, next) => {
 
         const userValidation = Joi.object({
@@ -227,6 +228,7 @@ exports.nearStoreValidation = ( req, res, next) => {
         }
    
 };
+
 exports.removeNearStoreValidation = ( req, res, next) => {
     
     //    nearstore object

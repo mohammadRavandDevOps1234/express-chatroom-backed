@@ -1,0 +1,17 @@
+{
+    "accessToken":"",
+    "user":{
+        "user_username":"mohammad50",
+        "user_email":"mohammad50@gmail.com",
+        "user_password":"mohffeaad",
+        "user_repeat_password":"mohffeaad"
+    },
+    "company":{
+        "company_name":"mohammad",
+        "company_brand":"mohammad",
+        "company_province":"20",
+        "company_city":"295",
+        "company_region":"0",
+        "company_logo":""
+    }
+}
