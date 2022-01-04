@@ -10,13 +10,12 @@ module.exports = {
         primaryKey: true,
         defaultValue: v4(),
     },
-      AgencyId: {
-        type: Sequelize.UUID,
-        references: {
-            model: 'Agencies',
-            key: 'id',
-        },
-        unique:true
+    AgencyId: {
+      type: Sequelize.UUID,
+      references: {
+          model: 'Agencies',
+          key: 'id',
+      },
     },
       province: {
         type: Sequelize.INTEGER

@@ -29,27 +29,28 @@ exports.register_company = async (req, res, next) => {
             province: req.body.company.company_province,
             city: req.body.company.company_city,
             region: req.body.company.company_region,
-            CompanyAgency:[
-              {
-                id:v4(),
-                agency_name:req.body.company.company_name
-              }
-            ]
           },
         ],
       },
-      { include: [{ model: Company, as: "CompanyInfos",include:[{ model: Agency, as: "CompanyAgency" }] }] },
+      { include: [{ model: Company, as: "CompanyInfos" }] },
       { transaction: t }
     );
 
-    if (company.CompanyInfos == null) {
+    let companyAgency = Agency.create({
+      id: v4(),
+      UserId: company.id,
+      CompanyId: company.CompanyInfos.id,
+      agency_name: req.body.company.company_name,
+    });
+
+    if (company.CompanyInfos == null || companyAgency==null) {
       throw new Error("some eror");
     }
 
     await t.commit();
     res.sendStatus(201);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     await t.rollback();
     res.sendStatus(400);
   }
@@ -58,48 +59,58 @@ exports.register_company = async (req, res, next) => {
 exports.udpate_company = async (req, res, next) => {
   const t = await sequelize.transaction();
   try {
-    let group = await Group.findOne({ where: { name: "company" } ,attributes:["id"]});
-    let user =await User.findOne({where:{username:req.body.user.user_old_username},attributes:["id"],include:[{model:Company,as: "CompanyInfos",attributes:["id"]}]})
+    let group = await Group.findOne({
+      where: { name: "company" },
+      attributes: ["id"],
+    });
+    let user = await User.findOne({
+      where: { username: req.body.user.user_old_username },
+      attributes: ["id"],
+      include: [{ model: Company, as: "CompanyInfos", attributes: ["id"] }],
+    });
 
-    let updateUserCompany = await User.update({
-      username:req.body.user.user_username,
-      email:req.body.user.user_email,
-      password:hashPassword(req.body.user.user_password)
-    },{where:{username:req.body.user.user_old_username}, transaction: t  });
-    
+    let updateUserCompany = await User.update(
+      {
+        username: req.body.user.user_username,
+        email: req.body.user.user_email,
+        password: hashPassword(req.body.user.user_password),
+      },
+      { where: { username: req.body.user.user_old_username }, transaction: t }
+    );
 
-    let updateConsumerInfo = await Company.update({
-      company_name: req.body.company.company_name,
-      company_brand: req.body.company.company_brand,
-      company_logo: req.body.company.company_logo,
-      province: req.body.company.company_province,
-      city: req.body.company.company_city
-    },{where:{UserId:user.id}, transaction: t  });
+    let updateConsumerInfo = await Company.update(
+      {
+        company_name: req.body.company.company_name,
+        company_brand: req.body.company.company_brand,
+        company_logo: req.body.company.company_logo,
+        province: req.body.company.company_province,
+        city: req.body.company.company_city,
+      },
+      { where: { UserId: user.id }, transaction: t }
+    );
 
-    
     let userCompanyId = user.CompanyInfos.id;
 
-    let updateAgency = await Agency.update({
-      agency_name:req.body.company.company_name
-    },{where:{CompanyId:userCompanyId}})
-
+    let updateAgency = await Agency.update(
+      {
+        agency_name: req.body.company.company_name,
+      },
+      { where: { CompanyId: userCompanyId,UserId:user.id } }
+    );
 
     await t.commit();
     res.sendStatus(200);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     await t.rollback();
     res.sendStatus(400);
   }
 };
 
-
-
-exports.test = async (req,res,next)=>{
-
+exports.test = async (req, res, next) => {
   try {
-    res.send(200)
+    res.send(200);
   } catch (error) {
-    res.send(400)
+    res.send(400);
   }
-}
+};

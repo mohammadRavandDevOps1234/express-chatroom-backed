@@ -1,6 +1,6 @@
 const { sequelize } = require("./../database/mysqlConnect");
 const Joi = require("joi");
-const { Sequelize,Op } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const {
   User,
   Consumer,
@@ -94,12 +94,11 @@ exports.consumer_signup_and_register_nearStores = async (req, res, next) => {
     let rooms = await Room.findOrCreate({
       where: { room_name: "nearStore" },
       defaults: {
-          id: v4(),
-          room_name: "nearStore",
-        },
+        id: v4(),
+        room_name: "nearStore",
+      },
       transaction: t,
-    }      
-    );
+    });
 
     let consumerNearStore = [];
 
@@ -151,33 +150,37 @@ exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
   try {
     let group = await Group.findOne({ where: { name: "consumer" } });
 
-    let hashPassword =(password)=>{
-      return bcrypt.hashSync(
-        password,
-        bcrypt.genSaltSync(15)
-      );
-    }
-   
-    let updateUserConsumer = await User.update({
-      username:req.body.user.user_username,
-      email:req.body.user.user_email,
-      password:hashPassword(req.body.user.user_password)
-    },{where:{username:req.body.user.user_old_username}, transaction: t  });
-    
-    let user =await User.findOne({where:{username:req.body.user.user_old_username}})
-    let consumer = await Consumer.findOne({where:{UserId:user.id}});
-    let updateConsumerInfo = await Consumer.update({
-      consumer_name: req.body.consumer.consumer_name,
-      consumer_lat: req.body.consumer.consumer_lat,
-      consumer_lng: req.body.consumer.consumer_lng,
-      province_id: req.body.consumer.consumer_province,
-      city_id: req.body.consumer.consumer_city,
-      region_id: req.body.consumer.consumer_region,
-    },{where:{UserId:user.id}, transaction: t  });
+    let hashPassword = (password) => {
+      return bcrypt.hashSync(password, bcrypt.genSaltSync(15));
+    };
+
+    let updateUserConsumer = await User.update(
+      {
+        username: req.body.user.user_username,
+        email: req.body.user.user_email,
+        password: hashPassword(req.body.user.user_password),
+      },
+      { where: { username: req.body.user.user_old_username }, transaction: t }
+    );
+
+    let user = await User.findOne({
+      where: { username: req.body.user.user_old_username },
+    });
+    let consumer = await Consumer.findOne({ where: { UserId: user.id } });
+    let updateConsumerInfo = await Consumer.update(
+      {
+        consumer_name: req.body.consumer.consumer_name,
+        consumer_lat: req.body.consumer.consumer_lat,
+        consumer_lng: req.body.consumer.consumer_lng,
+        province_id: req.body.consumer.consumer_province,
+        city_id: req.body.consumer.consumer_city,
+        region_id: req.body.consumer.consumer_region,
+      },
+      { where: { UserId: user.id }, transaction: t }
+    );
 
     // res.send(consumer);
     group = await Group.findOne({ where: { name: "store" } });
-   
 
     let nearStores = req.body.nearStores.map((nearStore) => {
       return {
@@ -211,7 +214,7 @@ exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
         // return User.findOrCreate(userStore, {include: [{ model: Store, as: "StoreInfos" }],  transaction: t, });
       })
     );
-    
+
     let userStores = await User.findAll({
       where: { username: req.body.removeNearStores },
       include: [{ model: Store, as: "StoreInfos" }],
@@ -222,13 +225,12 @@ exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
 
     let removeNearStores = await ConsumerStore.destroy({
       where: {
-        [Op.and]: [{ StoreId: userStores }, { ConsumerId:consumer.id }],
+        [Op.and]: [{ StoreId: userStores }, { ConsumerId: consumer.id }],
       },
       transaction: t,
     });
 
-
-    let rooms = await Room.findOne({where:{room_name:"nearStore"}});
+    let rooms = await Room.findOne({ where: { room_name: "nearStore" } });
 
     let consumerNearStore = [];
 
@@ -269,9 +271,8 @@ exports.consumer_signup_and_update_nearStores = async (req, res, next) => {
     await t.commit();
     res.send(consumerStore);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     await t.rollback();
     res.send("main error");
   }
 };
-

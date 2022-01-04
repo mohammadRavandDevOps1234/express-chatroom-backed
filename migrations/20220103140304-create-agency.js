@@ -10,13 +10,19 @@ module.exports = {
         primaryKey: true,
         defaultValue: v4(),
       },
+      UserId: {
+        type: Sequelize.UUID,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+      },
       CompanyId: {
         type: Sequelize.UUID,
         references: {
           model: "Companies",
           key: "id",
         },
-        unique: true,
       },
       agency_name: {
         type: Sequelize.STRING,

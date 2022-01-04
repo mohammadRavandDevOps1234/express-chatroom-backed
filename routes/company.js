@@ -27,5 +27,5 @@ router.put(
   companyController.udpate_company
 );
 
-router.post('/test',companyController.test)
+
 module.exports = router;

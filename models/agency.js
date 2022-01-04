@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Agency extends Model {
     /**
@@ -14,21 +12,46 @@ module.exports = (sequelize, DataTypes) => {
       // CompanyAgency
       models.Agency.belongsTo(models.Company, {
         foreignKey: {
-            as: "CompanyId",
+          as: "CompanyId",
+          allowNull: false,
+          targetKey: "id",
+        },
+        onDelete: "CASCADE",
+      });
+
+      models.Agency.hasMany(models.AgencyActivity, {
+        as: "AgencyActivityAreas",
+        foreignKey: {
+          name: "AgencyId",
+          allowNull: false,
+        },
+        targetKey: "id",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
+
+      models.Agency.belongsTo(models.User, {
+        foreignKey: {
+            as: "UserId",
             allowNull: false,
             targetKey: 'id',
         },
         onDelete: 'CASCADE'
     });
 
+
     }
-  };
-  Agency.init({
-    CompanyId: DataTypes.UUID,
-    agency_name: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Agency',
-  });
+    
+  }
+  Agency.init(
+    {
+      CompanyId: DataTypes.UUID,
+      agency_name: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Agency",
+    }
+  );
   return Agency;
 };

@@ -35,6 +35,17 @@ module.exports = (sequelize, DataTypes) => {
                 onUpdate: 'CASCADE'
             });
 
+            models.User.hasOne(models.Agency, {
+                as: "UserAgency",
+                foreignKey: {
+                    name: "UserId",
+                    allowNull: false
+                },
+                targetKey: 'id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE'
+            });
+
             models.User.hasOne(models.Store, {
                 as: "StoreInfos",
                 foreignKey: {

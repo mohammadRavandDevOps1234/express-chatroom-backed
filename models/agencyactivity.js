@@ -11,6 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      models.AgencyActivity.belongsTo(models.Agency, {
+        foreignKey: {
+            as: "AgencyId",
+            allowNull: false,
+            targetKey: 'id',
+        },
+        onDelete: 'CASCADE'
+    });
     }
   };
   AgencyActivity.init({
